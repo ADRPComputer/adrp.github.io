@@ -1,7 +1,6 @@
 const menuButton = document.querySelector(".menu-btn");
 const nav = document.querySelector(".site-nav");
-const navLinks = document.querySelectorAll('.site-nav a[href^="#"]');
-const sections = document.querySelectorAll("main section[id]");
+const navLinks = document.querySelectorAll(".site-nav a");
 const revealItems = document.querySelectorAll(".reveal");
 const counters = document.querySelectorAll("[data-count]");
 const yearEl = document.getElementById("year");
@@ -31,6 +30,30 @@ navLinks.forEach((link) => {
     }
   });
 });
+
+const getCurrentPage = () => {
+  const path = window.location.pathname.split("/").pop();
+  return path && path.length > 0 ? path : "index.html";
+};
+
+const setPageActiveLink = () => {
+  const currentPage = getCurrentPage();
+  navLinks.forEach((link) => {
+    const href = link.getAttribute("href");
+    if (!href) {
+      return;
+    }
+    const isMatch = href === currentPage;
+    link.classList.toggle("active", isMatch);
+    if (isMatch) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+};
+
+setPageActiveLink();
 
 const revealObserver = new IntersectionObserver(
   (entries, observer) => {
@@ -78,29 +101,6 @@ const counterObserver = new IntersectionObserver(
 );
 
 counters.forEach((counter) => counterObserver.observe(counter));
-
-const setActiveLink = () => {
-  const offset = window.scrollY + 130;
-  sections.forEach((section) => {
-    const top = section.offsetTop;
-    const bottom = top + section.offsetHeight;
-    const id = section.getAttribute("id");
-    if (!id) {
-      return;
-    }
-    const matchingLink = document.querySelector(`.site-nav a[href="#${id}"]`);
-    if (!matchingLink) {
-      return;
-    }
-    if (offset >= top && offset < bottom) {
-      navLinks.forEach((link) => link.classList.remove("active"));
-      matchingLink.classList.add("active");
-    }
-  });
-};
-
-window.addEventListener("scroll", setActiveLink, { passive: true });
-setActiveLink();
 
 if (form && formNote) {
   form.addEventListener("submit", (event) => {
